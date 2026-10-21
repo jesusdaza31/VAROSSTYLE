@@ -3,26 +3,47 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { DatabaseSync } = require('node:sqlite');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isVercel = Boolean(process.env.VERCEL);
 
-// Asegurar carpetas de datos y subidas
-const dataDir = path.join(__dirname, 'data');
-const uploadsDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+// Asegurar carpetas de datos y subidas (en Vercel usar /tmp debido al sistema de archivos de solo lectura)
+const dataDir = isVercel ? path.join(os.tmpdir(), 'varostyle-data') : path.join(__dirname, 'data');
+const uploadsDir = isVercel ? path.join(os.tmpdir(), 'varostyle-uploads') : path.join(__dirname, 'public', 'uploads');
 
-// Inicializar base de datos SQLite
+try {
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+} catch (e) {
+  console.warn('Advertencia al crear dataDir:', e.message);
+}
+
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (e) {
+  console.warn('Advertencia al crear uploadsDir:', e.message);
+}
+
+// Inicializar base de datos SQLite con respaldo
 const dbPath = path.join(dataDir, 'varostyle.sqlite');
-const db = new DatabaseSync(dbPath);
+let db;
+try {
+  db = new DatabaseSync(dbPath);
+} catch (err) {
+  console.warn('No se pudo abrir sqlite en disco, usando :memory::', err.message);
+  db = new DatabaseSync(':memory:');
+}
 
 // Configuración de middlewares
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+if (isVercel) {
+  app.use('/uploads', express.static(uploadsDir));
+}
 
 // Configuración de Multer para subir fotos (productos, logos, QR Nequi, comprobantes)
 const storage = multer.diskStorage({
@@ -856,9 +877,14 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`\n======================================================`);
-  console.log(`VAROSTYLE & VALEN SHOP E-COMMERCE + PWA ACTIVO`);
-  console.log(`Tienda Web & App: http://localhost:${PORT}`);
-  console.log(`======================================================\n`);
-});
+// Exportar app para Vercel Serverless
+module.exports = app;
+
+if (!isVercel) {
+  app.listen(PORT, () => {
+    console.log(`\n======================================================`);
+    console.log(`VAROSTYLE & VALEN SHOP E-COMMERCE + PWA ACTIVO`);
+    console.log(`Tienda Web & App: http://localhost:${PORT}`);
+    console.log(`======================================================\n`);
+  });
+}
