@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es-CO" data-universe="all">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>V&amp;V Studio | Casa Oficial de VaroStyle (Hombre) &amp; Valen Shop (Mujer)</title>
+  <meta name="description" content="V&V Studio: Marca oficial de moda que integra las sub-marcas VaroStyle (Ropa masculina con estilo) y Valen Shop (Elegancia sutil, belleza natural). Compra online con Nequi, PSE, Tarjeta o WhatsApp." />
+  <meta name="theme-color" content="#0F0F12" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+
+  <!-- Google Fonts: Montserrat (KOAJ Urban Bold) + Cormorant Garamond (Studio F Editorial) + Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Professional Vector Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <!-- =====================================================================
+       1. TOP PROMO BAR (ESTILO STUDIO F / KOAJ)
+       ===================================================================== -->
+  <div class="top-promo-bar" id="topPromoBar">
+    <div class="promo-marquee">
+      <span id="promoTextContent">V&amp;V STUDIO OFICIAL | ENVÍOS SEGUROS A TODA COLOMBIA | PAGA CON NEQUI, PSE, TARJETA O WHATSAPP | ENVÍO GRATIS DESDE $200.000</span>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       2. SELECTOR SUPERIOR DE MARCA OFICIAL Y SUB-MARCAS
+       ===================================================================== -->
+  <div class="universe-topbar">
+    <div class="container universe-topbar-inner">
+      <div class="universe-tabs" role="tablist" aria-label="Seleccionar marca o sub-marca">
+        <button class="universe-tab active" data-universe-btn="all" onclick="app.setUniverse('all')">
+          <span id="topTabMainBrand">TODO</span>
+        </button>
+        <button class="universe-tab" data-universe-btn="varostyle" onclick="app.setUniverse('varostyle')">
+          <span class="brand-indicator indicator-varo"></span>
+          <span>HOMBRE • <strong>VAROSTYLE</strong></span>
+        </button>
+        <button class="universe-tab" data-universe-btn="valenshop" onclick="app.setUniverse('valenshop')">
+          <span class="brand-indicator indicator-valen"></span>
+          <span>MUJER • <strong>VALEN SHOP</strong></span>
+        </button>
+      </div>
+
+      <div class="universe-utilities">
+        <button class="utility-link" onclick="app.openOrderTrackerModal()">
+          <i data-lucide="package-search" class="icon-xs"></i>
+          <span>Rastrear Pedido</span>
+        </button>
+        <button class="utility-link" onclick="app.openSizeGuideModal()">
+          <i data-lucide="ruler" class="icon-xs"></i>
+          <span>Guía de Tallas</span>
+        </button>
+        <button class="utility-link pwa-install-btn" id="pwaInstallBtn" onclick="app.triggerInstallPWA()" title="Agregar V&V Studio como App al celular">
+          <i data-lucide="smartphone" class="icon-xs"></i>
+          <span>Instalar App</span>
+        </button>
+        <button class="utility-link admin-access-btn" onclick="admin.openAdminPortal()">
+          <i data-lucide="sliders-horizontal" class="icon-xs"></i>
+          <span>Panel Admin</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       3. MEGA HEADER PRINCIPAL (STICKY)
+       ===================================================================== -->
+  <header class="main-header" id="mainHeader">
+    <div class="container header-inner">
+      <!-- Botón Menú Móvil -->
+      <button class="icon-btn mobile-menu-trigger" onclick="app.toggleMobileMenu()" aria-label="Abrir menú">
+        <i data-lucide="menu" class="icon-md"></i>
+      </button>
+
+      <!-- Logo Principal Dinámico (V&V STUDIO con sub-marcas VaroStyle y Valen Shop) -->
+      <a href="#top" class="brand-logo" onclick="app.navigateHome(event)">
+        <img id="headerBrandLogoImg" src="" alt="Logo Oficial" class="brand-logo-img hidden" />
+        <div class="brand-logo-text">
+          <span class="brand-primary" id="headerBrandTitle">V&amp;V STUDIO</span>
+          <span class="brand-sub" id="headerBrandSubtitle">VAROSTYLE • VALEN SHOP</span>
+        </div>
+      </a>
+
+      <!-- Navegación Desktop -->
+      <nav class="main-nav" aria-label="Navegación principal">
+        <a href="#catalogo" class="nav-link active" data-nav="all" onclick="app.filterFromNav('all', event)">
+          V&amp;V STUDIO <small>Catálogo General</small>
+        </a>
+        <a href="#catalogo" class="nav-link nav-varo" data-nav="varostyle" onclick="app.filterFromNav('varostyle', event)">
+          VAROSTYLE <small>Sub-marca Hombre</small>
+        </a>
+        <a href="#catalogo" class="nav-link nav-valen" data-nav="valenshop" onclick="app.filterFromNav('valenshop', event)">
+          VALEN SHOP <small>Sub-marca Mujer</small>
+        </a>
+        <a href="#catalogo" class="nav-link" data-nav="new" onclick="app.filterFromNav('new', event)">NUEVOS</a>
+        <a href="#catalogo" class="nav-link nav-sale" data-nav="sale" onclick="app.filterFromNav('sale', event)">SALE %</a>
+        <a href="#quienes-somos" class="nav-link" onclick="app.scrollToSection('quienes-somos', event)">QUIÉNES SOMOS</a>
+      </nav>
+
+      <!-- Buscador + Acciones -->
+      <div class="header-actions">
+        <div class="search-box" id="searchBox">
+          <i data-lucide="search" class="search-icon icon-sm"></i>
+          <input
+            type="search"
+            id="searchInput"
+            placeholder="Buscar camisa, vestido, jean..."
+            autocomplete="off"
+            oninput="app.handleSearchInput(this.value)"
+            onfocus="app.handleSearchFocus()"
+          />
+          <div class="search-dropdown hidden" id="searchDropdown"></div>
+        </div>
+
+        <button class="icon-btn" onclick="app.toggleWishlistDrawer()" aria-label="Favoritos" title="Mis Favoritos">
+          <i data-lucide="heart" class="icon-md"></i>
+          <span class="badge-counter" id="wishlistCount">0</span>
+        </button>
+
+        <button class="icon-btn cart-trigger-btn" onclick="app.toggleCartDrawer()" aria-label="Carrito de compras" title="Mi Bolsa de Compras">
+          <i data-lucide="shopping-bag" class="icon-md"></i>
+          <span class="badge-counter cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       4. CONTENIDO PRINCIPAL DE LA TIENDA
+       ===================================================================== -->
+  <main id="storeMainView">
+    <!-- 4.1 HERO SLIDER INTERACTIVO -->
+    <section class="hero-section" id="top">
+      <div class="hero-slider" id="heroSlider"></div>
+      <div class="hero-controls">
+        <button class="hero-arrow prev" onclick="app.prevSlide()" aria-label="Anterior">
+          <i data-lucide="chevron-left" class="icon-sm"></i>
+        </button>
+        <div class="hero-dots" id="heroDots"></div>
+        <button class="hero-arrow next" onclick="app.nextSlide()" aria-label="Siguiente">
+          <i data-lucide="chevron-right" class="icon-sm"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 4.2 CINTA DE BENEFICIOS (CONFIANZA COLOMBIA) -->
+    <section class="trust-strip">
+      <div class="container trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon-box"><i data-lucide="truck" class="icon-md"></i></div>
+          <div>
+            <strong>Envíos a toda Colombia</strong>
+            <p>Despachos rápidos y seguros hasta tu puerta</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon-box"><i data-lucide="qr-code" class="icon-md"></i></div>
+          <div>
+            <strong>Pago Directo Nequi &amp; QR</strong>
+            <p>Cuenta oficial: 314 792 3972 • Valentina Fuenmayor</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon-box"><i data-lucide="credit-card" class="icon-md"></i></div>
+          <div>
+            <strong>PSE, Tarjetas &amp; WhatsApp</strong>
+            <p>Elige cómo pagar con asesoría personalizada</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon-box"><i data-lucide="smartphone" class="icon-md"></i></div>
+          <div>
+            <strong>Instala la App V&amp;V Studio</strong>
+            <p>Agrega nuestra tienda oficial a tu celular</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.3 SPLIT EDITORIAL: DOS SUB-MARCAS BAJO V&V STUDIO (KOAJ + STUDIO F) -->
+    <section class="dual-stores-section container">
+      <div class="section-header-center">
+        <span class="eyebrow" id="dualSectionEyebrow">V&amp;V STUDIO • NUESTRAS SUB-MARCAS OFICIALES</span>
+        <h2>UNA CASA DE MODA, DOS UNIVERSOS</h2>
+        <p>Bajo el sello oficial de <strong id="dualSectionMainName">V&amp;V Studio</strong>, explora nuestras dos líneas especializadas: <strong>VaroStyle</strong> (Hombre) y <strong>Valen Shop</strong> (Mujer)</p>
+      </div>
+
+      <div class="dual-banners-grid">
+        <!-- Sub-marca 1: VaroStyle -->
+        <article class="universe-card card-varostyle" onclick="app.selectStoreAndScroll('varostyle')">
+          <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=1000&q=85" alt="VaroStyle Moda Masculina" loading="lazy" />
+          <div class="universe-card-overlay">
+            <span class="universe-tag">SUB-MARCA MASCULINA • BY V&amp;V STUDIO</span>
+            <h3 id="cardVaroTitle">VaroStyle</h3>
+            <p id="cardVaroDesc">Ropa masculina con estilo</p>
+            <div class="universe-card-meta">
+              <span class="inline-icon-text"><i data-lucide="instagram" class="icon-xs"></i> @varostyle.co</span>
+              <span class="inline-icon-text"><i data-lucide="phone" class="icon-xs"></i> 314 792 3972</span>
+            </div>
+            <button class="btn-editorial btn-light inline-icon-btn">
+              <span>ENTRAR A VAROSTYLE (HOMBRE)</span>
+              <i data-lucide="arrow-right" class="icon-xs"></i>
+            </button>
+          </div>
+        </article>
+
+        <!-- Sub-marca 2: Valen Shop -->
+        <article class="universe-card card-valenshop" onclick="app.selectStoreAndScroll('valenshop')">
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1000&q=85" alt="Valen Shop Moda Femenina" loading="lazy" />
+          <div class="universe-card-overlay">
+            <span class="universe-tag">SUB-MARCA FEMENINA • BY V&amp;V STUDIO</span>
+            <h3 id="cardValenTitle">Valen Shop</h3>
+            <p id="cardValenDesc">Elegancia sutil, belleza natural</p>
+            <div class="universe-card-meta">
+              <span class="inline-icon-text"><i data-lucide="instagram" class="icon-xs"></i> @valenshop.co</span>
+              <span class="inline-icon-text"><i data-lucide="phone" class="icon-xs"></i> 314 792 3972</span>
+            </div>
+            <button class="btn-editorial btn-champagne inline-icon-btn">
+              <span>ENTRAR A VALEN SHOP (MUJER)</span>
+              <i data-lucide="arrow-right" class="icon-xs"></i>
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 4.4 CATÁLOGO COMPLETO CON FILTROS INTELIGENTES (ESTILO STUDIO F / KOAJ) -->
+    <section class="catalog-section container" id="catalogo">
+      <!-- Banner dinámico de Universo activo -->
+      <div class="active-universe-banner" id="activeUniverseBanner">
+        <div class="active-universe-info">
+          <span class="active-universe-pill" id="activeUniversePill">MARCA OFICIAL PRINCIPAL</span>
+          <h2 id="activeUniverseTitle">V&amp;V STUDIO — CATÁLOGO GENERAL</h2>
+          <p id="activeUniverseSubtitle">Colección unificada de nuestras sub-marcas VaroStyle (Hombre) y Valen Shop (Mujer).</p>
+        </div>
+        <div class="active-universe-switcher">
+          <button class="switch-pill active" data-switch="all" onclick="app.setUniverse('all')">V&amp;V Studio (Todo)</button>
+          <button class="switch-pill" data-switch="varostyle" onclick="app.setUniverse('varostyle')">Sub-marca: VaroStyle</button>
+          <button class="switch-pill" data-switch="valenshop" onclick="app.setUniverse('valenshop')">Sub-marca: Valen Shop</button>
+        </div>
+      </div>
+
+      <!-- Barra de Herramientas y Filtros Rápidos -->
+      <div class="catalog-toolbar">
+        <div class="category-chips" id="categoryChips"></div>
+
+        <div class="catalog-controls">
+          <button class="btn-outline-sm" onclick="app.toggleAdvancedFilters()">
+            <i data-lucide="sliders-horizontal" class="icon-xs"></i>
+            <span>Filtros (Talla / Color / Precio)</span>
+          </button>
+
+          <select id="sortSelect" class="sort-select" onchange="app.setSort(this.value)" aria-label="Ordenar productos">
+            <option value="featured">Destacados</option>
+            <option value="newest">Más recientes</option>
+            <option value="price-asc">Precio: Menor a Mayor</option>
+            <option value="price-desc">Precio: Mayor a Menor</option>
+            <option value="discount">Mayores Descuentos</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Panel Desplegable de Filtros Avanzados (Tallas, Colores, Rango Precio) -->
+      <div class="advanced-filters-panel hidden" id="advancedFiltersPanel">
+        <div class="filter-group">
+          <label>Filtrar por Talla</label>
+          <div class="size-filter-list" id="sizeFilterList"></div>
+        </div>
+        <div class="filter-group">
+          <label>Filtrar por Etiqueta</label>
+          <div class="badge-filter-list">
+            <button class="chip-sm active" data-badge-filter="all" onclick="app.setBadgeFilter('all')">Todos</button>
+            <button class="chip-sm" data-badge-filter="NUEVO" onclick="app.setBadgeFilter('NUEVO')">Nuevos</button>
+            <button class="chip-sm" data-badge-filter="MÁS VENDIDO" onclick="app.setBadgeFilter('MÁS VENDIDO')">Más Vendidos</button>
+            <button class="chip-sm" data-badge-filter="SALE" onclick="app.setBadgeFilter('SALE')">En Oferta / Sale %</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Precio Máximo: <strong id="priceRangeLabel">$350.000</strong></label>
+          <input type="range" id="priceRangeInput" min="30000" max="350000" step="5000" value="350000" oninput="app.setMaxPrice(this.value)" />
+        </div>
+        <div class="filter-actions">
+          <button class="btn-text" onclick="app.resetFilters()">Limpiar todos los filtros</button>
+        </div>
+      </div>
+
+      <!-- Contador de resultados + Botón directo para agregar producto desde Admin -->
+      <div class="catalog-status-bar">
+        <p id="resultsCountText">Mostrando prendas...</p>
+        <button class="btn-add-quick-admin inline-icon-btn" onclick="admin.openAdminPortal('new-product')">
+          <i data-lucide="plus" class="icon-xs"></i>
+          <span>Agregar / Editar Productos</span>
+        </button>
+      </div>
+
+      <!-- GRILLA DE PRODUCTOS -->
+      <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- 4.5 SECCIÓN QUIÉNES SOMOS (V&V STUDIO Y SUS DOS SUB-MARCAS) -->
+    <section class="about-dual-section" id="quienes-somos">
+      <div class="container">
+        <div class="section-header-center">
+          <span class="eyebrow">GRUPO OFICIAL V&amp;V STUDIO</span>
+          <h2>QUIÉNES SOMOS</h2>
+          <p>Conoce la esencia de <strong>V&amp;V Studio</strong> y la historia de nuestras dos sub-marcas: <strong>VaroStyle</strong> y <strong>Valen Shop</strong></p>
+        </div>
+
+        <div class="about-cards-grid">
+          <!-- Sub-marca 1: VaroStyle -->
+          <div class="about-brand-card about-varo">
+            <div class="about-brand-header">
+              <div class="about-logo-badge" id="aboutVaroLogoWrap">VS</div>
+              <div>
+                <span class="store-pill">SUB-MARCA 1 • LÍNEA MASCULINA BY V&amp;V STUDIO</span>
+                <h3 id="aboutVaroName">VaroStyle</h3>
+                <p class="about-short" id="aboutVaroShort">Ropa masculina con estilo</p>
+              </div>
+            </div>
+            <div class="about-body" id="aboutVaroBody"></div>
+            <div class="about-social-links">
+              <a id="aboutVaroIg" href="https://instagram.com/varostyle.co" target="_blank" rel="noopener" class="social-pill inline-icon-btn">
+                <i data-lucide="instagram" class="icon-xs"></i>
+                <span>@varostyle.co</span>
+              </a>
+              <a id="aboutVaroWa" href="https://wa.me/573147923972" target="_blank" rel="noopener" class="social-pill wa-pill inline-icon-btn">
+                <i data-lucide="message-circle" class="icon-xs"></i>
+                <span>WhatsApp: 314 792 3972</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Sub-marca 2: Valen Shop -->
+          <div class="about-brand-card about-valen">
+            <div class="about-brand-header">
+              <div class="about-logo-badge badge-valen" id="aboutValenLogoWrap">VS</div>
+              <div>
+                <span class="store-pill pill-valen">SUB-MARCA 2 • LÍNEA FEMENINA BY V&amp;V STUDIO</span>
+                <h3 id="aboutValenName">Valen Shop</h3>
+                <p class="about-short" id="aboutValenShort">Elegancia sutil, belleza natural</p>
+              </div>
+            </div>
+            <div class="about-body" id="aboutValenBody"></div>
+            <div class="about-social-links">
+              <a id="aboutValenIg" href="https://instagram.com/valenshop.co" target="_blank" rel="noopener" class="social-pill inline-icon-btn">
+                <i data-lucide="instagram" class="icon-xs"></i>
+                <span>@valenshop.co</span>
+              </a>
+              <a id="aboutValenWa" href="https://wa.me/573147923972" target="_blank" rel="noopener" class="social-pill wa-pill inline-icon-btn">
+                <i data-lucide="message-circle" class="icon-xs"></i>
+                <span>WhatsApp: 314 792 3972</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloque Oficial de Pagos Nequi & Contacto Directo -->
+        <div class="official-payment-banner">
+          <div class="payment-banner-info">
+            <span class="nequi-pill inline-icon-btn">
+              <i data-lucide="shield-check" class="icon-xs"></i>
+              <span>PAGO OFICIAL VERIFICADO • V&amp;V STUDIO</span>
+            </span>
+            <h3>Paga fácil y seguro con Nequi, PSE, Tarjeta o WhatsApp</h3>
+            <p>
+              Número oficial de Nequi y WhatsApp para V&amp;V Studio (VaroStyle &amp; Valen Shop):
+              <strong id="bannerNequiNumber">314 792 3972</strong> • Titular:
+              <strong id="bannerAccountHolder">Valentina Fuenmayor</strong>
+            </p>
+            <div class="payment-banner-actions">
+              <button class="btn-primary-gold inline-icon-btn" onclick="app.copyText('3147923972', 'Número de Nequi copiado: 3147923972')">
+                <i data-lucide="copy" class="icon-xs"></i>
+                <span>Copiar Nequi: 3147923972</span>
+              </button>
+              <button class="btn-outline-light inline-icon-btn" onclick="app.openNequiQrModal()">
+                <i data-lucide="qr-code" class="icon-xs"></i>
+                <span>Ver Código QR de Nequi</span>
+              </button>
+            </div>
+          </div>
+          <div class="payment-banner-qr" onclick="app.openNequiQrModal()" title="Clic para ampliar QR">
+            <div id="bannerQrPreview" class="qr-mini-box"></div>
+            <span>Ver QR Nequi</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.6 BANNER DE INSTALACIÓN DE APP (PWA) -->
+    <section class="pwa-promo-section container">
+      <div class="pwa-promo-card">
+        <div class="pwa-promo-content">
+          <span class="eyebrow">EXPERIENCIA MÓVIL COMPLETA</span>
+          <h3>Lleva V&amp;V Studio (VaroStyle &amp; Valen Shop) como App en tu celular</h3>
+          <p>Instala nuestra aplicación web progresiva sin ocupar espacio en tu teléfono. Acceso directo a nuestras dos sub-marcas desde tu pantalla de inicio.</p>
+          <div class="pwa-promo-buttons">
+            <button class="btn-editorial btn-light inline-icon-btn" onclick="app.triggerInstallPWA()">
+              <i data-lucide="download" class="icon-xs"></i>
+              <span>INSTALAR APP V&amp;V STUDIO</span>
+            </button>
+            <button class="btn-outline-light inline-icon-btn" onclick="app.openPwaInstructionsModal()">
+              <i data-lucide="help-circle" class="icon-xs"></i>
+              <span>¿Cómo instalar en iPhone / Android?</span>
+            </button>
+          </div>
+        </div>
+        <div class="pwa-phone-mockup">
+          <div class="phone-screen">
+            <span class="phone-app-icon">V&amp;V</span>
+            <strong>V&amp;V Studio</strong>
+            <small>VaroStyle • Valen Shop</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =====================================================================
+       5. FOOTER COMPLETO
+       ===================================================================== -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col">
+        <h4 class="footer-logo" id="footerMainBrandTitle">V&amp;V STUDIO <span>VAROSTYLE &amp; VALEN SHOP</span></h4>
+        <p>Casa oficial de moda colombiana que integra las sub-marcas <strong>VaroStyle</strong> (Moda masculina con estilo) y <strong>Valen Shop</strong> (Elegancia sutil, belleza natural).</p>
+        <div class="footer-socials">
+          <a href="https://instagram.com/varostyle.co" target="_blank" rel="noopener" class="inline-icon-text"><i data-lucide="instagram" class="icon-xs"></i> @varostyle.co (VaroStyle)</a>
+          <a href="https://instagram.com/valenshop.co" target="_blank" rel="noopener" class="inline-icon-text"><i data-lucide="instagram" class="icon-xs"></i> @valenshop.co (Valen Shop)</a>
+          <a href="https://wa.me/573147923972" target="_blank" rel="noopener" class="inline-icon-text"><i data-lucide="phone" class="icon-xs"></i> +57 314 792 3972</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h5>SUB-MARCAS &amp; COLECCIONES</h5>
+        <ul>
+          <li><a href="#catalogo" onclick="app.selectStoreAndScroll('all')">V&amp;V Studio (Catálogo Completo)</a></li>
+          <li><a href="#catalogo" onclick="app.selectStoreAndScroll('varostyle')">Sub-marca: VaroStyle (Hombre)</a></li>
+          <li><a href="#catalogo" onclick="app.selectStoreAndScroll('valenshop')">Sub-marca: Valen Shop (Mujer)</a></li>
+          <li><a href="#catalogo" onclick="app.filterFromNav('new', event)">Nuevos Lanzamientos</a></li>
+          <li><a href="#catalogo" onclick="app.filterFromNav('sale', event)">Descuentos / Sale</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>ATENCIÓN AL CLIENTE</h5>
+        <ul>
+          <li><a href="javascript:void(0)" onclick="app.openSizeGuideModal()">Guía de Tallas Hombre &amp; Mujer</a></li>
+          <li><a href="javascript:void(0)" onclick="app.openOrderTrackerModal()">Rastrear mi Pedido</a></li>
+          <li><a href="javascript:void(0)" onclick="app.openNequiQrModal()">Datos de Pago Nequi &amp; QR</a></li>
+          <li><a href="javascript:void(0)" onclick="app.triggerInstallPWA()">Instalar App en el Celular</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>PAGOS Y CONTACTO OFICIAL</h5>
+        <p><strong>WhatsApp / Teléfono:</strong> 314 792 3972</p>
+        <p><strong>Nequi Oficial:</strong> 314 792 3972</p>
+        <p><strong>Titular:</strong> Valentina Fuenmayor</p>
+        <button class="btn-footer-admin inline-icon-btn" onclick="admin.openAdminPortal()">
+          <i data-lucide="sliders-horizontal" class="icon-xs"></i>
+          <span>Administrar V&amp;V Studio (Productos / QR / Pedidos)</span>
+        </button>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container footer-bottom-inner">
+        <span>© 2026 V&amp;V Studio (VaroStyle &amp; Valen Shop). Todos los derechos reservados.</span>
+        <span>Diseño &amp; Moda en Colombia</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       6. BARRA INFERIOR TIPO APP NATIVA (MÓVIL)
+       ===================================================================== -->
+  <nav class="mobile-bottom-nav" aria-label="Navegación rápida móvil">
+    <button class="bottom-nav-item active" onclick="app.setUniverse('all'); window.scrollTo({top:0,behavior:'smooth'})">
+      <i data-lucide="home" class="icon-sm"></i>
+      <span>V&amp;V Studio</span>
+    </button>
+    <button class="bottom-nav-item" onclick="app.selectStoreAndScroll('varostyle')">
+      <i data-lucide="shirt" class="icon-sm"></i>
+      <span>VaroStyle</span>
+    </button>
+    <button class="bottom-nav-item" onclick="app.selectStoreAndScroll('valenshop')">
+      <i data-lucide="sparkles" class="icon-sm"></i>
+      <span>Valen Shop</span>
+    </button>
+    <button class="bottom-nav-item" onclick="app.toggleCartDrawer()">
+      <div class="bottom-nav-badge-wrap">
+        <i data-lucide="shopping-bag" class="icon-sm"></i>
+        <span class="mini-badge" id="mobileCartCount">0</span>
+      </div>
+      <span>Bolsa</span>
+    </button>
+    <button class="bottom-nav-item" onclick="admin.openAdminPortal()">
+      <i data-lucide="sliders-horizontal" class="icon-sm"></i>
+      <span>Admin</span>
+    </button>
+  </nav>
+
+  <!-- Botón Flotante WhatsApp -->
+  <a
+    href="https://wa.me/573147923972?text=Hola%20V%26V%20Studio%20(VaroStyle%20%26%20Valen%20Shop),%20vengo%20de%20la%20p%C3%A1gina%20web%20y%20quiero%20asesor%C3%ADa."
+    target="_blank"
+    rel="noopener"
+    class="whatsapp-float-btn"
+    id="whatsappFloatBtn"
+    title="Chatear por WhatsApp con V&V Studio"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/></svg>
+    <span>Asesoría</span>
+  </a>
+
+  <!-- =====================================================================
+       7. DRAWERS & MODALES (CARRITO, FAVORITOS, VISTA RÁPIDA, CHECKOUT, ADMIN)
+       ===================================================================== -->
+
+  <!-- Menú Lateral Móvil -->
+  <div class="drawer-backdrop hidden" id="mobileMenuBackdrop" onclick="app.toggleMobileMenu(false)"></div>
+  <aside class="side-drawer left-drawer hidden" id="mobileMenuDrawer">
+    <div class="drawer-header">
+      <strong>V&amp;V STUDIO</strong>
+      <button class="close-btn" onclick="app.toggleMobileMenu(false)" aria-label="Cerrar">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+    <div class="drawer-body mobile-nav-list">
+      <span style="font-size:0.7rem; font-weight:800; color:var(--text-muted); letter-spacing:0.08em;">NUESTRAS DOS SUB-MARCAS</span>
+      <div class="mobile-universe-cards">
+        <button class="mob-uni-btn varo" onclick="app.selectStoreAndScroll('varostyle'); app.toggleMobileMenu(false)">
+          <strong>VaroStyle</strong>
+          <small>Sub-marca Hombre</small>
+        </button>
+        <button class="mob-uni-btn valen" onclick="app.selectStoreAndScroll('valenshop'); app.toggleMobileMenu(false)">
+          <strong>Valen Shop</strong>
+          <small>Sub-marca Mujer</small>
+        </button>
+      </div>
+      <a href="#catalogo" onclick="app.filterFromNav('all', event); app.toggleMobileMenu(false)">V&amp;V Studio (Todo el Catálogo)</a>
+      <a href="#catalogo" onclick="app.filterFromNav('new', event); app.toggleMobileMenu(false)">Nuevos Lanzamientos</a>
+      <a href="#catalogo" onclick="app.filterFromNav('sale', event); app.toggleMobileMenu(false)">Descuentos / Sale %</a>
+      <a href="#quienes-somos" onclick="app.scrollToSection('quienes-somos', event); app.toggleMobileMenu(false)">Quiénes Somos</a>
+      <hr />
+      <button class="mob-action-link inline-icon-btn" onclick="app.toggleMobileMenu(false); app.openSizeGuideModal()">
+        <i data-lucide="ruler" class="icon-xs"></i> <span>Guía de Tallas</span>
+      </button>
+      <button class="mob-action-link inline-icon-btn" onclick="app.toggleMobileMenu(false); app.openOrderTrackerModal()">
+        <i data-lucide="package-search" class="icon-xs"></i> <span>Rastrear mi Pedido</span>
+      </button>
+      <button class="mob-action-link inline-icon-btn" onclick="app.toggleMobileMenu(false); app.openNequiQrModal()">
+        <i data-lucide="qr-code" class="icon-xs"></i> <span>Ver QR y Cuenta Nequi</span>
+      </button>
+      <button class="mob-action-link inline-icon-btn" onclick="app.toggleMobileMenu(false); app.triggerInstallPWA()">
+        <i data-lucide="smartphone" class="icon-xs"></i> <span>Instalar App V&amp;V Studio</span>
+      </button>
+      <button class="mob-action-link admin inline-icon-btn" onclick="app.toggleMobileMenu(false); admin.openAdminPortal()">
+        <i data-lucide="sliders-horizontal" class="icon-xs"></i> <span>Panel de Administración</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Drawer Carrito de Compras -->
+  <div class="drawer-backdrop hidden" id="cartBackdrop" onclick="app.toggleCartDrawer(false)"></div>
+  <aside class="side-drawer right-drawer hidden" id="cartDrawer">
+    <div class="drawer-header">
+      <div>
+        <strong>MI BOLSA DE COMPRAS</strong>
+        <small id="cartHeaderCount">(0 prendas)</small>
+      </div>
+      <button class="close-btn" onclick="app.toggleCartDrawer(false)" aria-label="Cerrar">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+    <!-- Barra de progreso para Envío Gratis -->
+    <div class="free-shipping-bar" id="freeShippingBar">
+      <p id="freeShippingText">¡Agrega $200.000 para Envío Gratis!</p>
+      <div class="progress-track"><div class="progress-fill" id="freeShippingProgress" style="width: 0%"></div></div>
+    </div>
+    <div class="drawer-body" id="cartItemsContainer"></div>
+    <div class="drawer-footer" id="cartFooter">
+      <div class="cart-summary-row">
+        <span>Subtotal</span>
+        <strong id="cartSubtotalValue">$0</strong>
+      </div>
+      <div class="cart-summary-row muted">
+        <span>Envío estimado</span>
+        <span id="cartShippingValue">$12.000</span>
+      </div>
+      <div class="cart-summary-row total">
+        <span>Total</span>
+        <strong id="cartTotalValue">$0</strong>
+      </div>
+      <button class="btn-checkout-main inline-icon-btn justify-center" onclick="checkout.openCheckoutModal()">
+        <span>FINALIZAR COMPRA (NEQUI / PSE / WHATSAPP)</span>
+        <i data-lucide="arrow-right" class="icon-xs"></i>
+      </button>
+      <button class="btn-whatsapp-direct inline-icon-btn justify-center" onclick="checkout.quickOrderViaWhatsApp()">
+        <i data-lucide="message-circle" class="icon-xs"></i>
+        <span>Pedir estas prendas directo por WhatsApp</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Drawer Favoritos (Wishlist) -->
+  <div class="drawer-backdrop hidden" id="wishlistBackdrop" onclick="app.toggleWishlistDrawer(false)"></div>
+  <aside class="side-drawer right-drawer hidden" id="wishlistDrawer">
+    <div class="drawer-header">
+      <strong class="inline-icon-text"><i data-lucide="heart" class="icon-sm"></i> MIS FAVORITOS</strong>
+      <button class="close-btn" onclick="app.toggleWishlistDrawer(false)" aria-label="Cerrar">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+    </div>
+    <div class="drawer-body" id="wishlistItemsContainer"></div>
+  </aside>
+
+  <!-- Modal Vista Rápida / Detalle de Producto (Estilo Studio F / KOAJ) -->
+  <div class="modal-backdrop hidden" id="productModalBackdrop" onclick="app.closeProductModal(event)">
+    <div class="modal-container product-detail-modal" onclick="event.stopPropagation()">
+      <button class="modal-close-floating" onclick="app.closeProductModal()" aria-label="Cerrar">
+        <i data-lucide="x" class="icon-sm"></i>
+      </button>
+      <div id="productModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout Multicanal (Nequi QR + Comprobante, PSE/Tarjeta, WhatsApp) -->
+  <div class="modal-backdrop hidden" id="checkoutModalBackdrop" onclick="checkout.closeCheckoutModal(event)">
+    <div class="modal-container checkout-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">PAGO 100% SEGURO • V&amp;V STUDIO (VAROSTYLE &amp; VALEN SHOP)</span>
+          <h3>Finalizar Pedido</h3>
+        </div>
+        <button class="close-btn" onclick="checkout.closeCheckoutModal()" aria-label="Cerrar">
+          <i data-lucide="x" class="icon-sm"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="checkoutModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal Guía de Tallas (Hombre VaroStyle & Mujer Valen Shop) -->
+  <div class="modal-backdrop hidden" id="sizeGuideModalBackdrop" onclick="app.closeSizeGuideModal()">
+    <div class="modal-container size-guide-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="inline-icon-text"><i data-lucide="ruler" class="icon-sm"></i> Guía Oficial de Tallas — V&amp;V Studio</h3>
+        <button class="close-btn" onclick="app.closeSizeGuideModal()" aria-label="Cerrar">
+          <i data-lucide="x" class="icon-sm"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="size-guide-grid">
+          <div>
+            <h4>Sub-marca VaroStyle — Moda Masculina (Camisas / Camisetas / Chaquetas)</h4>
+            <table class="size-table">
+              <thead><tr><th>Talla</th><th>Pecho (cm)</th><th>Cintura (cm)</th><th>Pantalón</th></tr></thead>
+              <tbody>
+                <tr><td><strong>S</strong></td><td>92 - 96 cm</td><td>76 - 81 cm</td><td>28 - 30</td></tr>
+                <tr><td><strong>M</strong></td><td>97 - 102 cm</td><td>82 - 87 cm</td><td>30 - 32</td></tr>
+                <tr><td><strong>L</strong></td><td>103 - 108 cm</td><td>88 - 94 cm</td><td>32 - 34</td></tr>
+                <tr><td><strong>XL</strong></td><td>109 - 116 cm</td><td>95 - 102 cm</td><td>34 - 36</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4>Sub-marca Valen Shop — Moda Femenina (Vestidos / Blusas / Sets)</h4>
+            <table class="size-table">
+              <thead><tr><th>Talla</th><th>Busto (cm)</th><th>Cintura (cm)</th><th>Cadera (cm)</th><th>Jean</th></tr></thead>
+              <tbody>
+                <tr><td><strong>XS</strong></td><td>82 - 85 cm</td><td>62 - 65 cm</td><td>88 - 91 cm</td><td>6</td></tr>
+                <tr><td><strong>S</strong></td><td>86 - 90 cm</td><td>66 - 70 cm</td><td>92 - 96 cm</td><td>8</td></tr>
+                <tr><td><strong>M</strong></td><td>91 - 95 cm</td><td>71 - 75 cm</td><td>97 - 101 cm</td><td>10</td></tr>
+                <tr><td><strong>L</strong></td><td>96 - 102 cm</td><td>76 - 82 cm</td><td>102 - 108 cm</td><td>12 - 14</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal QR Oficial de Nequi -->
+  <div class="modal-backdrop hidden" id="nequiQrModalBackdrop" onclick="app.closeNequiQrModal()">
+    <div class="modal-container nequi-qr-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="inline-icon-text"><i data-lucide="qr-code" class="icon-sm"></i> Pago Oficial con Nequi — V&amp;V Studio</h3>
+        <button class="close-btn" onclick="app.closeNequiQrModal()" aria-label="Cerrar">
+          <i data-lucide="x" class="icon-sm"></i>
+        </button>
+      </div>
+      <div class="modal-body nequi-modal-body" id="nequiQrModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Modal Rastreo de Pedido -->
+  <div class="modal-backdrop hidden" id="orderTrackerBackdrop" onclick="app.closeOrderTrackerModal()">
+    <div class="modal-container tracker-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="inline-icon-text"><i data-lucide="package-search" class="icon-sm"></i> Rastrear mi Pedido</h3>
+        <button class="close-btn" onclick="app.closeOrderTrackerModal()" aria-label="Cerrar">
+          <i data-lucide="x" class="icon-sm"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Ingresa el código de tu pedido (ejemplo: <strong>VS-1042</strong>) para consultar su estado en tiempo real:</p>
+        <div class="tracker-search-row">
+          <input type="text" id="trackerInputCode" placeholder="Ej: VS-1234" />
+          <button class="btn-primary-gold" onclick="app.searchOrderTracking()">Consultar</button>
+        </div>
+        <div id="trackerResultBox" class="tracker-result-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Instrucciones Instalación PWA -->
+  <div class="modal-backdrop hidden" id="pwaInfoModalBackdrop" onclick="app.closePwaInstructionsModal()">
+    <div class="modal-container tracker-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="inline-icon-text"><i data-lucide="smartphone" class="icon-sm"></i> Agregar V&amp;V Studio como App al Celular</h3>
+        <button class="close-btn" onclick="app.closePwaInstructionsModal()" aria-label="Cerrar">
+          <i data-lucide="x" class="icon-sm"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="pwa-steps-grid">
+          <div class="pwa-step-box">
+            <h4 class="inline-icon-text"><i data-lucide="smartphone" class="icon-sm"></i> En Android (Chrome)</h4>
+            <ol>
+              <li>Toca el botón <strong>"Instalar App"</strong> en la parte superior, o abre el menú de 3 puntos de Chrome.</li>
+              <li>Selecciona <strong>"Instalar aplicación"</strong> o <strong>"Agregar a la pantalla principal"</strong>.</li>
+              <li>Verás el icono de <strong>V&amp;V Studio</strong> junto a tus demás aplicaciones.</li>
+            </ol>
+          </div>
+          <div class="pwa-step-box">
+            <h4 class="inline-icon-text"><i data-lucide="share" class="icon-sm"></i> En iPhone / iPad (Safari)</h4>
+            <ol>
+              <li>Toca el botón <strong>Compartir</strong> en la barra inferior de Safari.</li>
+              <li>Desliza hacia abajo y selecciona <strong>"Agregar a inicio"</strong>.</li>
+              <li>Pulsa <strong>"Agregar"</strong> arriba a la derecha.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       8. PANEL DE ADMINISTRACIÓN COMPLETO (CMS: PRODUCTOS, TIENDAS, QR, PEDIDOS)
+       ===================================================================== -->
+  <div class="modal-backdrop hidden" id="adminModalBackdrop">
+    <div class="modal-container admin-dashboard-modal" onclick="event.stopPropagation()">
+      <div class="admin-header">
+        <div class="admin-title-group">
+          <span class="admin-badge">MODO ADMINISTRADOR</span>
+          <h3>Panel de Control — V&amp;V Studio (VaroStyle &amp; Valen Shop)</h3>
+        </div>
+        <div class="admin-header-actions">
+          <button class="btn-outline-light btn-sm inline-icon-btn" onclick="admin.closeAdminPortal()">
+            <i data-lucide="arrow-left" class="icon-xs"></i>
+            <span>Volver a la Tienda</span>
+          </button>
+        </div>
+      </div>
+      <div id="adminPortalBody" class="admin-portal-body"></div>
+    </div>
+  </div>
+
+  <!-- Contenedor de Notificaciones Toast -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts de la aplicación -->
+  <script src="/js/app.js"></script>
+  <script src="/js/checkout.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "V&V Studio | VaroStyle & Valen Shop",
+  "short_name": "V&V Studio",
+  "description": "Casa de moda oficial V&V Studio y sus dos sub-marcas: VaroStyle (Moda Masculina con Estilo) y Valen Shop (Elegancia Sutil, Belleza Natural). Envíos a toda Colombia.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0F0F12",
+  "theme_color": "#0F0F12",
+  "lang": "es-CO",
+  "categories": ["shopping", "fashion", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
