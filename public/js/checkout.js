@@ -1,11 +1,15 @@
 // ============================================================================
-// VAROSTYLE & VALEN SHOP — CHECKOUT MULTICANAL (NEQUI, PSE/TARJETA, WHATSAPP)
+// VAROSTYLE & VALEN SHOP — CHECKOUT MULTICANAL CON CUPONES Y ZONAS DE ENVÍO
 // ============================================================================
 
 const checkout = {
   state: {
-    paymentMethod: 'nequi', // 'nequi' | 'pse_card' | 'whatsapp'
-    uploadedReceiptUrl: ''
+    paymentMethod: 'nequi', // 'nequi' | 'pse_card' | 'contraentrega' | 'whatsapp'
+    uploadedReceiptUrl: '',
+    selectedZoneId: 0,
+    appliedCoupon: null, // { code, discountAmount, freeShipping, coupon }
+    couponMessage: '',
+    couponError: false
   },
 
   openCheckoutModal() {
@@ -15,12 +19,141 @@ const checkout = {
     }
     app.toggleCartDrawer(false);
     this.state.uploadedReceiptUrl = '';
+    this.state.appliedCoupon = null;
+    this.state.couponMessage = '';
+    this.state.couponError = false;
+    const zones = app.state.shippingZones || [];
+    this.state.selectedZoneId = zones.length > 0 ? zones[0].id : 0;
     this.renderCheckoutModal();
     document.getElementById('checkoutModalBackdrop')?.classList.remove('hidden');
   },
 
   closeCheckoutModal() {
     document.getElementById('checkoutModalBackdrop')?.classList.add('hidden');
+  },
+
+  getCalculatedTotals() {
+    const subtotal = app.state.cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const zones = app.state.shippingZones || [];
+    const activeZone = zones.find(z => Number(z.id) === Number(this.state.selectedZoneId)) || zones[0];
+
+    const threshold = activeZone
+      ? Number(activeZone.freeThreshold || app.state.settings?.freeShippingThreshold || 200000)
+      : Number(app.state.settings?.freeShippingThreshold || 200000);
+
+    const baseShipping = activeZone
+      ? Number(activeZone.price ?? 12000)
+      : Number(app.state.settings?.defaultShippingCost || 12000);
+
+    let discount = 0;
+    let couponFreeShip = false;
+    if (this.state.appliedCoupon) {
+      discount = Number(this.state.appliedCoupon.discountAmount || 0);
+      couponFreeShip = Boolean(this.state.appliedCoupon.freeShipping);
+    }
+
+    const afterDiscount = Math.max(0, subtotal - discount);
+    const shipping = subtotal === 0 || afterDiscount >= threshold || couponFreeShip ? 0 : baseShipping;
+    const total = Math.max(0, afterDiscount + shipping);
+
+    return {
+      subtotal,
+      discount,
+      shipping,
+      total,
+      threshold,
+      activeZone
+    };
+  },
+
+  handleZoneChange(zoneId) {
+    this.state.selectedZoneId = Number(zoneId);
+    this.updateSummaryTotalsUI();
+    this.renderPaymentMethodDetails();
+  },
+
+  async applyCouponCode() {
+    const input = document.getElementById('chkCouponInput');
+    const code = (input?.value || '').trim().toUpperCase();
+    if (!code) {
+      this.state.couponError = true;
+      this.state.couponMessage = 'Escribe un código de descuento primero';
+      this.updateSummaryTotalsUI();
+      return;
+    }
+
+    const subtotal = app.state.cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    try {
+      const res = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, subtotal, items: app.state.cart })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        this.state.appliedCoupon = null;
+        this.state.couponError = true;
+        this.state.couponMessage = data.error || 'Cupón no válido';
+      } else {
+        this.state.appliedCoupon = {
+          code: data.coupon.code,
+          discountAmount: data.discountAmount,
+          freeShipping: data.freeShipping,
+          coupon: data.coupon
+        };
+        this.state.couponError = false;
+        this.state.couponMessage = data.freeShipping
+          ? `Cupón ${data.coupon.code} aplicado: Envío Gratis activado`
+          : `Cupón ${data.coupon.code} aplicado (-${app.formatCOP(data.discountAmount)})`;
+      }
+    } catch (err) {
+      this.state.couponError = true;
+      this.state.couponMessage = 'Error validando el cupón';
+    }
+
+    this.updateSummaryTotalsUI();
+    this.renderPaymentMethodDetails();
+  },
+
+  removeCoupon() {
+    this.state.appliedCoupon = null;
+    this.state.couponMessage = '';
+    this.state.couponError = false;
+    const input = document.getElementById('chkCouponInput');
+    if (input) input.value = '';
+    this.updateSummaryTotalsUI();
+    this.renderPaymentMethodDetails();
+  },
+
+  updateSummaryTotalsUI() {
+    const { subtotal, discount, shipping, total } = this.getCalculatedTotals();
+    const subEl = document.getElementById('chkSummarySubtotal');
+    const discRow = document.getElementById('chkSummaryDiscountRow');
+    const discVal = document.getElementById('chkSummaryDiscount');
+    const shipEl = document.getElementById('chkSummaryShipping');
+    const totEl = document.getElementById('chkSummaryTotal');
+    const msgEl = document.getElementById('chkCouponFeedback');
+
+    if (subEl) subEl.textContent = app.formatCOP(subtotal);
+    if (discRow && discVal) {
+      discRow.style.display = discount > 0 ? 'flex' : 'none';
+      discVal.textContent = `-${app.formatCOP(discount)}`;
+    }
+    if (shipEl) shipEl.textContent = shipping === 0 ? 'GRATIS' : app.formatCOP(shipping);
+    if (totEl) totEl.textContent = app.formatCOP(total);
+
+    if (msgEl) {
+      if (!this.state.couponMessage) {
+        msgEl.innerHTML = '';
+      } else {
+        msgEl.innerHTML = `
+          <div style="margin-top:6px; font-size:0.78rem; font-weight:700; color:${this.state.couponError ? '#DC2626' : '#0E6F37'}; display:flex; align-items:center; justify-content:space-between;">
+            <span>${this.state.couponMessage}</span>
+            ${this.state.appliedCoupon ? `<button type="button" onclick="checkout.removeCoupon()" style="border:none; background:none; color:#DC2626; text-decoration:underline; font-size:0.74rem; cursor:pointer;">Quitar</button>` : ''}
+          </div>
+        `;
+      }
+    }
   },
 
   setPaymentMethod(method) {
@@ -32,7 +165,8 @@ const checkout = {
   },
 
   renderCheckoutModal() {
-    const { subtotal, shipping, total } = app.getCartTotals();
+    const { subtotal, discount, shipping, total } = this.getCalculatedTotals();
+    const zones = app.state.shippingZones || [];
     const container = document.getElementById('checkoutModalContent');
     if (!container) return;
 
@@ -63,6 +197,27 @@ const checkout = {
             </div>
           </div>
 
+          ${
+            zones.length > 0
+              ? `
+            <div class="form-field">
+              <label>Zona de Envío / Cobertura *</label>
+              <select id="chkZoneSelect" onchange="checkout.handleZoneChange(this.value)">
+                ${zones
+                  .map(
+                    z => `
+                  <option value="${z.id}" ${Number(z.id) === Number(this.state.selectedZoneId) ? 'selected' : ''}>
+                    ${z.name} — ${app.formatCOP(z.price)} (${z.estimatedDays || '2-4 días'})
+                  </option>
+                `
+                  )
+                  .join('')}
+              </select>
+            </div>
+          `
+              : ''
+          }
+
           <div class="form-grid-2">
             <div class="form-field">
               <label>Departamento *</label>
@@ -85,7 +240,7 @@ const checkout = {
           </div>
 
           <h4 style="margin:18px 0 8px; font-family:var(--font-heading);">2. Elige tu Método de Pago</h4>
-          <div class="payment-methods-tabs">
+          <div class="payment-methods-tabs" style="grid-template-columns: repeat(2, 1fr);">
             <button
               type="button"
               class="pay-tab-btn ${this.state.paymentMethod === 'nequi' ? 'active' : ''}"
@@ -93,7 +248,7 @@ const checkout = {
               onclick="checkout.setPaymentMethod('nequi')"
             >
               <div class="pay-tab-icon"><i data-lucide="qr-code" class="icon-sm"></i></div>
-              <span>Nequi Oficial</span><br/><small>QR + Comprobante</small>
+              <span>Nequi / Llave</span><br/><small>QR + Comprobante</small>
             </button>
             <button
               type="button"
@@ -103,6 +258,15 @@ const checkout = {
             >
               <div class="pay-tab-icon"><i data-lucide="credit-card" class="icon-sm"></i></div>
               <span>Tarjeta / PSE</span><br/><small>Pago en Línea</small>
+            </button>
+            <button
+              type="button"
+              class="pay-tab-btn ${this.state.paymentMethod === 'contraentrega' ? 'active' : ''}"
+              data-pay-method="contraentrega"
+              onclick="checkout.setPaymentMethod('contraentrega')"
+            >
+              <div class="pay-tab-icon"><i data-lucide="truck" class="icon-sm"></i></div>
+              <span>Contraentrega</span><br/><small>Pagas al recibir</small>
             </button>
             <button
               type="button"
@@ -118,11 +282,11 @@ const checkout = {
           <div id="paymentMethodDynamicBox"></div>
         </div>
 
-        <!-- Columna Derecha: Resumen de Prendas -->
+        <!-- Columna Derecha: Resumen de Prendas + Cupón -->
         <div>
           <div style="background:#FAF9F6; padding:20px; border-radius:14px; border:1px solid var(--border-color);">
             <h4 style="margin-bottom:14px; font-family:var(--font-heading);">Resumen de tu Pedido</h4>
-            <div style="max-height:260px; overflow-y:auto; margin-bottom:14px;">
+            <div style="max-height:240px; overflow-y:auto; margin-bottom:14px;">
               ${app.state.cart
                 .map(
                   i => `
@@ -141,17 +305,43 @@ const checkout = {
                 .join('')}
             </div>
 
+            <!-- Cupón de Descuento -->
+            <div style="margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-color);">
+              <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:6px; text-transform:uppercase;">Código Promocional / Cupón</label>
+              <div style="display:flex; gap:8px;">
+                <input
+                  type="text"
+                  id="chkCouponInput"
+                  placeholder="Ej: BIENVENIDA10"
+                  style="flex:1; padding:8px 12px; border:1px solid var(--border-color); border-radius:8px; font-size:0.84rem; text-transform:uppercase;"
+                />
+                <button
+                  type="button"
+                  class="btn-outline-sm"
+                  onclick="checkout.applyCouponCode()"
+                  style="border-radius:8px; font-weight:800;"
+                >
+                  Aplicar
+                </button>
+              </div>
+              <div id="chkCouponFeedback"></div>
+            </div>
+
             <div class="cart-summary-row">
               <span>Subtotal prendas</span>
-              <strong>${app.formatCOP(subtotal)}</strong>
+              <strong id="chkSummarySubtotal">${app.formatCOP(subtotal)}</strong>
+            </div>
+            <div class="cart-summary-row" id="chkSummaryDiscountRow" style="display:${discount > 0 ? 'flex' : 'none'}; color:#0E6F37;">
+              <span>Descuento cupón</span>
+              <strong id="chkSummaryDiscount">-${app.formatCOP(discount)}</strong>
             </div>
             <div class="cart-summary-row">
               <span>Envío nacional</span>
-              <strong>${shipping === 0 ? 'GRATIS' : app.formatCOP(shipping)}</strong>
+              <strong id="chkSummaryShipping">${shipping === 0 ? 'GRATIS' : app.formatCOP(shipping)}</strong>
             </div>
             <div class="cart-summary-row total">
               <span>Total a Pagar</span>
-              <strong style="font-size:1.3rem;">${app.formatCOP(total)}</strong>
+              <strong id="chkSummaryTotal" style="font-size:1.3rem;">${app.formatCOP(total)}</strong>
             </div>
 
             <button type="submit" class="btn-checkout-main inline-icon-btn justify-center" style="margin-top:10px;">
@@ -175,13 +365,13 @@ const checkout = {
     const nequiNumber = varo.nequiNumber || '3147923972';
     const holder = varo.accountHolder || 'Valentina Fuenmayor';
     const key = varo.nequiKey || nequiNumber;
-    const { total } = app.getCartTotals();
+    const { total } = this.getCalculatedTotals();
 
     if (this.state.paymentMethod === 'nequi') {
       box.innerHTML = `
         <div class="nequi-payment-card">
           <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-            <span class="nequi-pill">PAGO CON NEQUI</span>
+            <span class="nequi-pill">PAGO CON NEQUI / LLAVE</span>
             <button type="button" class="btn-outline-sm inline-icon-btn" onclick="app.copyText('${nequiNumber}', 'Número Nequi copiado: ${nequiNumber}')">
               <i data-lucide="copy" class="icon-xs"></i>
               <span>Copiar Número: ${nequiNumber}</span>
@@ -193,7 +383,7 @@ const checkout = {
           <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid var(--border-color); font-size:0.85rem;">
             <div><strong>Número de Nequi:</strong> <span style="font-size:1.05rem; font-weight:800; color:var(--accent-nequi);">${nequiNumber}</span></div>
             <div><strong>Titular de la cuenta:</strong> ${holder}</div>
-            <div><strong>Llave Nequi:</strong> ${key}</div>
+            <div><strong>Llave Bre-B / Nequi:</strong> ${key}</div>
           </div>
 
           <div class="nequi-qr-display">${app.getQrHtml()}</div>
@@ -238,6 +428,15 @@ const checkout = {
           </div>
         </div>
       `;
+    } else if (this.state.paymentMethod === 'contraentrega') {
+      box.innerHTML = `
+        <div style="background:#FFFBEB; border:1px solid #FDE68A; padding:16px; border-radius:12px; font-size:0.86rem;">
+          <strong class="inline-icon-text" style="color:#92400E;"><i data-lucide="truck" class="icon-sm"></i> Pago Contraentrega en Efectivo</strong>
+          <p style="margin-top:6px; color:#78350F;">
+            Pagas el valor total de <strong>${app.formatCOP(total)}</strong> al momento de recibir el paquete en tu dirección. Confirmaremos tu despacho vía WhatsApp antes de enviarlo.
+          </p>
+        </div>
+      `;
     } else {
       box.innerHTML = `
         <div style="background:#EBF9F1; border:1px solid #A7F3D0; padding:16px; border-radius:12px; font-size:0.86rem;">
@@ -261,7 +460,7 @@ const checkout = {
     formData.append('files', input.files[0]);
 
     try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload?base64=1', { method: 'POST', body: formData });
       const data = await res.json();
       if (data.urls && data.urls[0]) {
         this.state.uploadedReceiptUrl = data.urls[0];
@@ -285,6 +484,8 @@ const checkout = {
         ? 'Nequi (3147923972 - Valentina Fuenmayor)'
         : order.paymentMethod === 'pse_card'
         ? `PSE / Tarjeta (${order.paymentReference || 'Aprobado'})`
+        : order.paymentMethod === 'contraentrega'
+        ? 'Pago Contraentrega al recibir'
         : 'Coordinar por WhatsApp';
 
     const mainBrand = app.state.settings?.mainBrand || 'V&V Studio';
@@ -298,6 +499,7 @@ const checkout = {
       `*Ciudad:* ${order.city}, ${order.department}\n` +
       `*Dirección:* ${order.address}\n\n` +
       `*PRENDAS DEL PEDIDO:*\n${itemsLines}\n\n` +
+      (order.discount > 0 ? `*Descuento (${order.couponCode}):* -${app.formatCOP(order.discount)}\n` : '') +
       `*Envío:* ${order.shipping === 0 ? 'GRATIS' : app.formatCOP(order.shipping)}\n` +
       `*TOTAL A PAGAR:* *${app.formatCOP(order.total)}*\n` +
       `*Método de pago:* ${methodLabel}\n` +
@@ -308,9 +510,10 @@ const checkout = {
 
   async submitOrder(event) {
     event.preventDefault();
-    const { subtotal, shipping, total } = app.getCartTotals();
+    const { subtotal, discount, shipping, total } = this.getCalculatedTotals();
 
     const payload = {
+      channel: 'WEB',
       customerName: document.getElementById('chkName')?.value.trim(),
       customerDoc: document.getElementById('chkDoc')?.value.trim(),
       customerPhone: document.getElementById('chkPhone')?.value.trim(),
@@ -324,6 +527,8 @@ const checkout = {
       paymentReceipt: this.state.uploadedReceiptUrl || '',
       items: app.state.cart,
       subtotal,
+      couponCode: this.state.appliedCoupon?.code || '',
+      discount,
       shipping,
       total
     };
@@ -363,6 +568,7 @@ const checkout = {
           <div style="max-width:460px; margin:0 auto 22px; background:#FAF9F6; padding:16px; border-radius:12px; border:1px solid var(--border-color); text-align:left; font-size:0.86rem;">
             <p><strong>Código de rastreo:</strong> ${createdOrder.orderNumber}</p>
             <p><strong>Estado actual:</strong> ${createdOrder.status}</p>
+            ${createdOrder.discount > 0 ? `<p><strong>Descuento (${createdOrder.couponCode}):</strong> -${app.formatCOP(createdOrder.discount)}</p>` : ''}
             <p><strong>Total:</strong> ${app.formatCOP(createdOrder.total)}</p>
             <p><strong>Cuenta Nequi Oficial:</strong> 314 792 3972 (Valentina Fuenmayor)</p>
           </div>

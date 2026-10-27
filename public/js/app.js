@@ -6,6 +6,8 @@ const app = {
   state: {
     settings: null,
     products: [],
+    categories: [],
+    shippingZones: [],
     banners: [],
     universe: 'all', // 'all' | 'varostyle' | 'valenshop'
     category: 'Todas',
@@ -89,6 +91,8 @@ const app = {
       const data = await res.json();
       this.state.settings = data.settings || {};
       this.state.products = data.products || [];
+      this.state.categories = data.categories || [];
+      this.state.shippingZones = data.shippingZones || [];
       this.state.banners = data.banners || [];
     } catch (err) {
       console.error('Error cargando datos iniciales:', err);
@@ -388,12 +392,17 @@ const app = {
       return true;
     });
 
-    const categories = ['Todas', ...new Set(activeProducts.map(p => p.category).filter(Boolean))];
+    const dbCats = (this.state.categories || [])
+      .filter(c => c.active !== 0 && (this.state.universe === 'all' || c.brand === 'all' || c.brand === this.state.universe))
+      .map(c => c.name);
+
+    const prodCats = activeProducts.map(p => p.category).filter(Boolean);
+    const categories = ['Todas', ...new Set([...dbCats, ...prodCats])];
 
     container.innerHTML = categories
       .map(
         cat => `
-      <button class="category-chip ${this.state.category === cat ? 'active' : ''}" onclick="app.setCategory('${cat}')">
+      <button class="category-chip ${this.state.category === cat ? 'active' : ''}" onclick="app.setCategory('${cat.replace(/'/g, "\\'")}')">
         ${cat}
       </button>
     `
@@ -1177,13 +1186,15 @@ const app = {
       const order = await res.json();
       box.innerHTML = `
         <div style="padding:16px; background:#F8FAFC; border:1px solid var(--border-color); border-radius:10px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <strong>Pedido ${order.orderNumber}</strong>
             <span class="badge-pill badge-promo">${order.status}</span>
           </div>
           <p style="font-size:0.85rem;"><strong>Cliente:</strong> ${order.customerName}</p>
-          <p style="font-size:0.85rem;"><strong>Destino:</strong> ${order.city} (${order.address})</p>
-          <p style="font-size:0.85rem;"><strong>Total:</strong> ${this.formatCOP(order.total)}</p>
+          <p style="font-size:0.85rem;"><strong>Destino:</strong> ${order.city}${order.department ? ', ' + order.department : ''} (${order.address})</p>
+          ${order.carrier ? `<p style="font-size:0.85rem;"><strong>Transportadora:</strong> ${order.carrier}</p>` : ''}
+          ${order.trackingNumber ? `<p style="font-size:0.85rem;"><strong>Número de Guía:</strong> <span style="background:#FEF3C7; padding:2px 8px; border-radius:4px; font-weight:800;">${order.trackingNumber}</span></p>` : ''}
+          <p style="font-size:0.85rem; margin-top:4px;"><strong>Total:</strong> ${this.formatCOP(order.total)}</p>
         </div>
       `;
     } catch (err) {
